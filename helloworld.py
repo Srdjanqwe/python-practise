@@ -158,12 +158,55 @@ import json
 #
 # print(cont)
 
-import csv
+# import csv
+#
+# csvFile= open("csvFile.csv")
+# readCsv=csv.reader(csvFile, delimiter=",")
+# for i in readCsv:
+#     print(str.format("Name: {}, Surname: {}, Subject: {}", i[0],i[1],i[2]))
 
-csvFile= open("csvFile.csv")
-readCsv=csv.reader(csvFile, delimiter=",")
-for i in readCsv:
-    print(str.format("Name: {}, Surname: {}, Subject: {}", i[0],i[1],i[2]))
+# import csv
+# csvFile = open('names.csv', 'w', newline='')
+# fieldnames = ['name', 'surname']
+# writer = csv.DictWriter(csvFile, fieldnames=fieldnames)
+# writer.writeheader()
+# writer.writerow({'name': 'Sergio', 'surname': 'Ramos'})
+# writer.writerow({'surname': 'Nadal'})
+# writer.writerow({'name': 'Julio', 'surname': 'Hernandez'})
+
+# import csv
+# csvfile = open("csvFile.csv")
+# procitanCSV = csv.DictReader(csvfile, delimiter=',')
+# for a in procitanCSV:
+#     print(a["name"], a["surname"], a["subject"])
+
+import pymysql
+
+db = pymysql.connect("localhost","root","password","python")
+print("Succsesfuly opened")
+cur = db.cursor()
+sql = "SELECT * FROM users"
+cur.execute(sql)
+# cursor = conn.execute("SELECT id, firstname, lastname, year FROM users WHERE =='Sergio'")
+for row in cur:
+    print(str.format("id={}, firstname={}, lastname={}", row[0], row[1], row[2]))
+db.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
