@@ -180,17 +180,185 @@ import json
 # for a in procitanCSV:
 #     print(a["name"], a["surname"], a["subject"])
 
+# import pymysql
+#
+# db = pymysql.connect("localhost","root","password","python")
+# print("Succsesfuly opened")
+# cur = db.cursor()
+# # sql = "SELECT * FROM users"
+# # sql = "SELECT firstname, lastname, year FROM users WHERE firstname = 'Sergio'"
+# # jedno = radi zasto dva ne rade ?
+# # print(sql)
+# # cur.execute(sql)
+# cur.execute(" SELECT * FROM users WHERE firstname = 'Sergio' ")
+# for row in cur:
+#     print(str.format("id={}, firstname={}, lastname={}, year={}", row[0], row[1], row[2], row[3]))
+# # for row in cur:
+# #     print(str.format("firstname={}, lastname={}, year={}", row[0], row[1], row[2]))
+# db.close()
+
+
+# import mysql.connector
+# mydb = mysql.connector.connect(host="localhost", user="root", password="password",  database="python")
+#
+# mycursor = mydb.cursor()
+# # mycursor.execute("SELECT * FROM users")
+# mycursor.execute(" SELECT * FROM users WHERE firstname = 'Sergio' ")
+#
+# myresult = mycursor.fetchall()
+#
+# for x in myresult:
+#   print(x)
+
+
+from tkinter import *
+import tkinter as tk
+from tkinter import ttk
+import mysql.connector
 import pymysql
 
-db = pymysql.connect("localhost","root","password","python")
-print("Succsesfuly opened")
-cur = db.cursor()
-sql = "SELECT * FROM users"
-cur.execute(sql)
-# cursor = conn.execute("SELECT id, firstname, lastname, year FROM users WHERE =='Sergio'")
-for row in cur:
-    print(str.format("id={}, firstname={}, lastname={}", row[0], row[1], row[2]))
-db.close()
+# mydb = mysql.connector.connect(host="localhost", user="root", password="password",  database="aptk")
+mydb = pymysql.connect(host="localhost", user="root", password="password",  database="aptk")
+# mycursor = mydb.cursor()
+cur=mydb.cursor()
+
+def updatelist(rows):
+    trv.delete(*trv.get_children())
+    for i in rows:
+        trv.insert("","end", values=i)
+
+def getrow(event):
+    rowid=trv.identify_row(event.y)
+    item=trv.item(trv.focus())
+    # print(item['values'][0])
+    t1.set(item['values'][0])
+    # t1.set(item['values'][0])
+    # t2.set(item['values'][1])
+    t2.set(item['values'][1])
+    t3.set(item['values'][2])
+  # w = event.widget
+  # index= int(w.curselection()[0])
+  # value=w.get(index)
+
+def insert():
+    # id = t1.get()
+    name = t2.get()
+    error = t3.get()
+    # mycursor.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    # cur.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    cur.execute("INSERT INTO ticket (id,name,error) VALUES (NULL, %s, %s)",(id,name,error))
+    # cur.execute("INSERT INTO ticket (name,error) VALUES (%s, %s)",(name,error))
+    mydb.commit()
+    mydb.close()
+
+def delete():
+    id = t1.get()
+    # name = t1.get()
+    # error = t2.get()
+    # mycursor.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    # cur.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    # cur.execute("INSERT INTO ticket (id,name,error) VALUES (%s, %s)",(id,name,error))
+    cur.execute("DELETE FROM ticket WHERE id="+id)
+    mydb.commit()
+    mydb.close()
+
+def update():
+    name = t2.get()
+    error = t3.get()
+    id = t1.get()
+    # mycursor.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    # cur.execute("INSERT INTO ticket(name,error) VALUES ('{}','{}')".format(e1.get(),e2.get()))
+    # cur.execute("INSERT INTO ticket (id,name,error) VALUES (%s, %s)",(id,name,error))
+    cur.execute("UPDATE ticket SET name=%s, error=%s WHERE id="+id,(name,error))
+    mydb.commit()
+    mydb.close()
+
+
+root= Tk()
+q=StringVar()
+t1=StringVar()
+t2=StringVar()
+t3=StringVar()
+
+wraper1=LabelFrame(root, text='Ticket list')
+wraper2=LabelFrame(root, text='Entry data')
+
+wraper1.pack()
+wraper2.pack()
+
+
+# lb= tkinter.Listbox(top)
+# lb.pack()
+#
+# lb.bind('<<ListboxSelect>>', getrow)
+
+trv = ttk.Treeview(wraper1, columns=(1,2,3), show='headings', height='6')
+# trv = ttk.Treeview(wraper1, columns=(1,2), show='headings', height='6')
+trv.pack()
+
+trv.heading(1, text='id')
+trv.heading(2, text='name')
+trv.heading(3, text='error')
+
+trv.bind('<Double 1>', getrow)
+
+query="SELECT * FROM ticket"
+cur.execute(query)
+rows=cur.fetchall()
+updatelist(rows)
+
+lbl1=Label(wraper2, text='id')
+lbl1.grid()
+e1=Entry(wraper2, textvariable=t1)
+e1.grid()
+
+# lbl1=Label(wraper2, text='name')
+# lbl1.grid()
+# e1=Entry(wraper2, textvariable=t1)
+# e1.grid()
+#
+# lbl2=Label(wraper2, text='error')
+# lbl2.grid()
+# e2=Entry(wraper2, textvariable=t2)
+# e2.grid()
+
+lbl2=Label(wraper2, text='name')
+lbl2.grid()
+e2=Entry(wraper2, textvariable=t2)
+e2.grid()
+
+lbl3=Label(wraper2, text='error')
+lbl3.grid()
+e3=Entry(wraper2, textvariable=t3)
+e3.grid()
+
+btn_add=tk.Button(root, text='Add', command=insert)
+btn_add.pack()
+
+btn_add=tk.Button(root, text='Delete', command=delete)
+btn_add.pack()
+
+btn_add=tk.Button(root, text='Update', command=update)
+btn_add.pack()
+
+root.geometry('800x600')
+root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
